@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LUMIÈRE — Photography Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --cream: #f5f0e8;
+      --gold: #c9a96e;
+      --gold-light: #e8d5aa;
+      --warm-gray: #2a2520;
+      --text-muted: #8a8078;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--cream);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 300;
+      cursor: none;
+      overflow-x: hidden;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--gold);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, opacity 0.3s;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 38px; height: 38px;
+      border: 1px solid rgba(201,169,110,0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: left 0.12s ease, top 0.12s ease, width 0.3s ease, height 0.3s ease;
+    }
+    .cursor.hover { width: 16px; height: 16px; }
+    .cursor-ring.hover { width: 56px; height: 56px; border-color: var(--gold); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 28px 60px;
+      mix-blend-mode: normal;
+    }
+    nav::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,10,10,0.9) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.25em;
+      font-weight: 300;
+      color: var(--cream);
+      text-decoration: none;
+      position: relative;
+    }
+    .logo span { color: var(--gold); }
+    .nav-links {
+      display: flex; gap: 44px; list-style: none;
+      position: relative;
+    }
+    .nav-links a {
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      transition: opacity 0.3s, color 0.3s;
+    }
+    .nav-links a:hover { opacity: 1; color: var(--gold); }
+    .nav-cta {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold) !important;
+      border: 1px solid var(--gold);
+      padding: 10px 22px;
+      transition: background 0.3s !important;
+      position: relative;
+    }
+    .nav-cta:hover { background: var(--gold); color: var(--black) !important; }
+
+    /* ── HERO ── */
+    #hero {
+      height: 100vh;
+      position: relative;
+      display: flex; align-items: center; justify-content: flex-start;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(135deg, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.3) 60%, rgba(10,10,10,0.7) 100%),
+        url('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1800&q=80') center/cover no-repeat;
+      transform: scale(1.05);
+      animation: heroZoom 18s ease-in-out infinite alternate;
+    }
+    @keyframes heroZoom {
+      from { transform: scale(1.05); }
+      to   { transform: scale(1.12); }
+    }
+    .hero-content {
+      position: relative;
+      padding-left: 12vw;
+      max-width: 780px;
+    }
+    .hero-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 1s 0.3s forwards;
+    }
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 7vw, 7rem);
+      font-weight: 300;
+      line-height: 1.05;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 1s 0.55s forwards;
+    }
+    .hero-title em { font-style: italic; color: var(--gold-light); }
+    .hero-subtitle {
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      line-height: 1.9;
+      color: rgba(245,240,232,0.65);
+      max-width: 420px;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 1s 0.8s forwards;
+    }
+    .hero-btns {
+      display: flex; gap: 20px; align-items: center;
+      opacity: 0;
+      animation: fadeUp 1s 1.05s forwards;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: var(--black);
+      padding: 16px 38px;
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .btn-ghost {
+      color: var(--cream);
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      text-decoration: none;
+      opacity: 0.7;
+      display: flex; align-items: center; gap: 10px;
+      transition: opacity 0.3s;
+    }
+    .btn-ghost::after {
+      content: '';
+      display: block; width: 32px; height: 1px;
+      background: var(--cream);
+      transition: width 0.3s;
+    }
+    .btn-ghost:hover { opacity: 1; }
+    .btn-ghost:hover::after { width: 52px; }
+    .hero-scroll {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      opacity: 0; animation: fadeUp 1s 1.4s forwards;
+    }
+    .hero-scroll span {
+      font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .scroll-line {
+      width: 1px; height: 52px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { transform: scaleY(1); opacity: 1; }
+      50% { transform: scaleY(0.6); opacity: 0.4; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-strip {
+      background: var(--gold);
+      padding: 14px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .marquee-inner {
+      display: inline-block;
+      animation: marquee 22s linear infinite;
+    }
+    .marquee-inner span {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--black);
+      margin: 0 40px;
+      font-weight: 500;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── SECTIONS COMMON ── */
+    section { padding: 120px 60px; }
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 4vw, 3.8rem);
+      font-weight: 300;
+      line-height: 1.15;
+    }
+    .section-title em { font-style: italic; color: var(--gold-light); }
+
+    /* ── ABOUT ── */
+    #about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 100px;
+      align-items: center;
+      background: var(--warm-gray);
+    }
+    .about-img-wrap {
+      position: relative;
+    }
+    .about-img-wrap img {
+      width: 100%; height: 560px;
+      object-fit: cover;
+      display: block;
+    }
+    .about-img-wrap::before {
+      content: '';
+      position: absolute;
+      top: -20px; left: -20px;
+      width: 200px; height: 200px;
+      border: 1px solid var(--gold);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .about-img-wrap::after {
+      content: '';
+      position: absolute;
+      bottom: -20px; right: -20px;
+      width: 120px; height: 120px;
+      background: var(--gold);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .about-stat-row {
+      display: flex; gap: 48px; margin-top: 48px;
+    }
+    .stat h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3rem;
+      font-weight: 300;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat p {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    .about-text p {
+      font-size: 0.85rem;
+      line-height: 2;
+      color: rgba(245,240,232,0.7);
+      margin-top: 28px;
+    }
+
+    /* ── PORTFOLIO ── */
+    #portfolio { background: var(--black); }
+    .portfolio-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 56px;
+    }
+    .filter-tabs {
+      display: flex; gap: 28px;
+    }
+    .filter-tabs button {
+      background: none; border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: none;
+      transition: color 0.3s;
+      padding-bottom: 6px;
+      position: relative;
+    }
+    .filter-tabs button::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.3s;
+    }
+    .filter-tabs button.active, .filter-tabs button:hover { color: var(--gold); }
+    .filter-tabs button.active::after, .filter-tabs button:hover::after { width: 100%; }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto;
+      gap: 16px;
+    }
+    .gallery-item {
+      overflow: hidden;
+      position: relative;
+      cursor: none;
+    }
+    .gallery-item:nth-child(1) { grid-column: 1 / 6; grid-row: 1; height: 420px; }
+    .gallery-item:nth-child(2) { grid-column: 6 / 9; grid-row: 1; height: 420px; }
+    .gallery-item:nth-child(3) { grid-column: 9 / 13; grid-row: 1; height: 420px; }
+    .gallery-item:nth-child(4) { grid-column: 1 / 5; grid-row: 2; height: 320px; }
+    .gallery-item:nth-child(5) { grid-column: 5 / 9; grid-row: 2; height: 320px; }
+    .gallery-item:nth-child(6) { grid-column: 9 / 13; grid-row: 2; height: 320px; }
+    .gallery-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+      display: block;
+    }
+    .gallery-item:hover img { transform: scale(1.08); }
+    .gallery-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,0.85) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      display: flex; align-items: flex-end;
+      padding: 28px;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-overlay h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: var(--cream);
+    }
+    .gallery-overlay span {
+      display: block;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    /* ── SERVICES ── */
+    #services {
+      background: var(--warm-gray);
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 64px;
+    }
+    .service-card {
+      background: rgba(10,10,10,0.5);
+      padding: 52px 40px;
+      border-bottom: 1px solid rgba(201,169,110,0.15);
+      transition: background 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: var(--gold);
+      transition: width 0.5s ease;
+    }
+    .service-card:hover { background: rgba(201,169,110,0.06); }
+    .service-card:hover::before { width: 100%; }
+    .service-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 4rem;
+      font-weight: 300;
+      color: rgba(201,169,110,0.15);
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+    .service-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.7rem;
+      font-weight: 300;
+      margin-bottom: 16px;
+    }
+    .service-card p {
+      font-size: 0.78rem;
+      line-height: 1.9;
+      color: var(--text-muted);
+    }
+    .service-price {
+      margin-top: 28px;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* ── TESTIMONIALS ── */
+    #testimonials {
+      background: var(--black);
+      text-align: center;
+    }
+    .testimonials-wrapper {
+      max-width: 800px;
+      margin: 72px auto 0;
+      position: relative;
+    }
+    .testimonial-slide {
+      display: none;
+      animation: fadeIn 0.6s ease;
+    }
+    .testimonial-slide.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .testimonial-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.5rem, 2.5vw, 2.1rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.5;
+      color: var(--cream);
+      margin-bottom: 36px;
+    }
+    .testimonial-quote::before { content: '"'; color: var(--gold); font-size: 3rem; line-height: 0; vertical-align: -0.5em; margin-right: 6px; }
+    .testimonial-author {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .testimonial-role { color: var(--text-muted); margin-top: 4px; font-size: 0.6rem; }
+    .testimonial-dots {
+      display: flex; justify-content: center; gap: 10px; margin-top: 48px;
+    }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      cursor: none;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .dot.active { background: var(--gold); transform: scale(1.4); }
+
+    /* ── CONTACT ── */
+    #contact {
+      background: var(--warm-gray);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+    .contact-info p {
+      font-size: 0.82rem;
+      line-height: 2;
+      color: rgba(245,240,232,0.65);
+      margin-top: 24px;
+      max-width: 380px;
+    }
+    .contact-details {
+      margin-top: 48px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .contact-detail {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .contact-icon {
+      width: 40px; height: 40px;
+      border: 1px solid rgba(201,169,110,0.3);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .contact-detail span { font-size: 0.78rem; color: rgba(245,240,232,0.7); }
+    .contact-form { display: flex; flex-direction: column; gap: 18px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label {
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--cream);
+      padding: 14px 18px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem;
+      outline: none;
+      transition: border-color 0.3s;
+      resize: vertical;
+      cursor: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--gold); }
+    .form-group select option { background: var(--warm-gray); }
+    .form-submit {
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      padding: 18px 44px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      font-weight: 500;
+      cursor: none;
+      transition: background 0.3s, transform 0.3s;
+      align-self: flex-start;
+    }
+    .form-submit:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      padding: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    footer .logo { font-size: 1.3rem; }
+    .footer-socials { display: flex; gap: 22px; }
+    .footer-socials a {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .footer-socials a:hover { border-color: var(--gold); color: var(--gold); }
+    footer p {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+    }
+
+    /* ── REVEAL ANIMATION ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.22s; }
+    .reveal-delay-3 { transition-delay: 0.36s; }
+    .reveal-delay-4 { transition-delay: 0.5s; }
+    .reveal-delay-5 { transition-delay: 0.64s; }
+    .reveal-delay-6 { transition-delay: 0.78s; }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="logo">LUMI<span>È</span>RE</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#portfolio">Portfolio</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#testimonials">Testimonials</a></li>
+      <li><a href="#contact" class="nav-cta">Book a Session</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Fine Art Photography Studio — Est. 2012</p>
+      <h1 class="hero-title">
+        Where light<br>
+        becomes <em>art</em>
+      </h1>
+      <p class="hero-subtitle">
+        We craft timeless imagery that captures the soul of every moment — from intimate portraits to grand celebrations.
+      </p>
+      <div class="hero-btns">
+        <a href="#portfolio" class="btn-primary">View Portfolio</a>
+        <a href="#contact" class="btn-ghost">Book Now</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip">
+    <div class="marquee-inner">
+      <span>Portraits</span><span>✦</span>
+      <span>Weddings</span><span>✦</span>
+      <span>Editorial</span><span>✦</span>
+      <span>Commercial</span><span>✦</span>
+      <span>Fine Art Prints</span><span>✦</span>
+      <span>Events</span><span>✦</span>
+      <span>Fashion</span><span>✦</span>
+      <span>Portraits</span><span>✦</span>
+      <span>Weddings</span><span>✦</span>
+      <span>Editorial</span><span>✦</span>
+      <span>Commercial</span><span>✦</span>
+      <span>Fine Art Prints</span><span>✦</span>
+      <span>Events</span><span>✦</span>
+      <span>Fashion</span><span>✦</span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-img-wrap reveal">
+      <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=900&q=80" alt="Studio photographer at work" />
+    </div>
+    <div class="about-text">
+      <p class="section-label reveal">Our Story</p>
+      <h2 class="section-title reveal reveal-delay-1">Crafted with<br><em>passion</em> &amp; light</h2>
+      <p class="reveal reveal-delay-2">
+        Lumière was founded with a singular belief: that every person, every moment, every feeling deserves to be preserved with artistry and intention. Our studio blends technical mastery with an intuitive eye for beauty.
+      </p>
+      <p class="reveal reveal-delay-3">
+        Based in the heart of the city, our team of dedicated photographers brings warmth, creativity, and meticulous attention to every shoot — whether you're stepping in front of our lens for the first time or the hundredth.
+      </p>
+      <div class="about-stat-row reveal reveal-delay-4">
+        <div class="stat"><h3>12+</h3><p>Years of Experience</p></div>
+        <div class="stat"><h3>4.8k</h3><p>Happy Clients</p></div>
+        <div class="stat"><h3>38</h3><p>Awards Won</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section id="portfolio">
+    <div class="portfolio-header">
+      <div>
+        <p class="section-label reveal">Our Work</p>
+        <h2 class="section-title reveal reveal-delay-1">Selected <em>portfolio</em></h2>
+      </div>
+      <div class="filter-tabs reveal reveal-delay-2">
+        <button class="active" data-filter="all">All</button>
+        <button data-filter="portrait">Portrait</button>
+        <button data-filter="wedding">Wedding</button>
+        <button data-filter="editorial">Editorial</button>
+      </div>
+    </div>
+    <div class="gallery-grid reveal reveal-delay-2">
+      <div class="gallery-item" data-cat="wedding">
+        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=900&q=80" alt="Wedding photography" />
+        <div class="gallery-overlay"><div><span>Wedding</span><h4>Elena & Marco</h4></div></div>
+      </div>
+      <div class="gallery-item" data-cat="portrait">
+        <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=700&q=80" alt="Portrait" />
+        <div class="gallery-overlay"><div><span>Portrait</span><h4>Sofia</h4></div></div>
+      </div>
+      <div class="gallery-item" data-cat="editorial">
+        <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=700&q=80" alt="Editorial fashion" />
+        <div class="gallery-overlay"><div><span>Editorial</span><h4>Haute Couture</h4></div></div>
+      </div>
+      <div class="gallery-item" data-cat="portrait">
+        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=700&q=80" alt="Portrait" />
+        <div class="gallery-overlay"><div><span>Portrait</span><h4>James</h4></div></div>
+      </div>
+      <div class="gallery-item" data-cat="wedding">
+        <img src="https://images.unsplash.com/photo-1511285560929-80b456503681?w=700&q=80" alt="Wedding" />
+        <div class="gallery-overlay"><div><span>Wedding</span><h4>Clara & Tom</h4></div></div>
+      </div>
+      <div class="gallery-item" data-cat="editorial">
+        <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=700&q=80" alt="Editorial" />
+        <div class="gallery-overlay"><div><span>Editorial</span><h4>Spring Collection</h4></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <p class="section-label reveal">What We Offer</p>
+    <h2 class="section-title reveal reveal-delay-1">Our <em>services</em></h2>
+    <div class="services-grid">
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-num">01</div>
+        <h3>Portrait Sessions</h3>
+        <p>Individual, couple, or family portraits in our custom-lit studio or a location of your choice. We bring out your authentic self with care and artistry.</p>
+        <div class="service-price">From ₹4,999 / 2 hrs</div>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-num">02</div>
+        <h3>Wedding Coverage</h3>
+        <p>Full-day documentary and artistic wedding photography. We blend in while capturing every laugh, tear, and tender glance of your most important day.</p>
+        <div class="service-price">From ₹39,999 / full day</div>
+      </div>
+      <div class="service-card reveal reveal-delay-3">
+        <div class="service-num">03</div>
+        <h3>Editorial &amp; Fashion</h3>
+        <p>Campaign, lookbook, and magazine-ready photography. We collaborate with brands and stylists to create powerful, market-ready visual narratives.</p>
+        <div class="service-price">Custom quote</div>
+      </div>
+      <div class="service-card reveal reveal-delay-4">
+        <div class="service-num">04</div>
+        <h3>Commercial Photography</h3>
+        <p>Product, architecture, food, and corporate images that convert. Clean, professional, and on-brand visuals for your business needs.</p>
+        <div class="service-price">From ₹9,999 / half day</div>
+      </div>
+      <div class="service-card reveal reveal-delay-5">
+        <div class="service-num">05</div>
+        <h3>Events &amp; Celebrations</h3>
+        <p>Birthdays, graduations, corporate galas — candid, joyful, vivid event photography that preserves the energy of the occasion.</p>
+        <div class="service-price">From ₹14,999 / event</div>
+      </div>
+      <div class="service-card reveal reveal-delay-6">
+        <div class="service-num">06</div>
+        <h3>Fine Art Prints</h3>
+        <p>Museum-quality large-format prints of your favourite images, hand-finished and ready to hang. Available in a range of papers and canvas options.</p>
+        <div class="service-price">From ₹1,999 / print</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials">
+    <p class="section-label reveal">Kind Words</p>
+    <h2 class="section-title reveal reveal-delay-1">What clients <em>say</em></h2>
+    <div class="testimonials-wrapper">
+      <div class="testimonial-slide active">
+        <p class="testimonial-quote">Lumière captured our wedding with such grace and emotion. Every photo feels like a painting — we look at them every single day.</p>
+        <p class="testimonial-author">Priya &amp; Arjun Nair</p>
+        <p class="testimonial-role">Wedding, 2024</p>
+      </div>
+      <div class="testimonial-slide">
+        <p class="testimonial-quote">The team made me feel completely at ease in front of the camera. My portraits came out more beautiful than I ever imagined possible.</p>
+        <p class="testimonial-author">Meenakshi Sundaram</p>
+        <p class="testimonial-role">Portrait Session</p>
+      </div>
+      <div class="testimonial-slide">
+        <p class="testimonial-quote">Our product campaign photos were stunning. Sales went up 40% after we updated our website with Lumière's commercial shoot. Worth every rupee.</p>
+        <p class="testimonial-author">Vikram Reddy</p>
+        <p class="testimonial-role">Commercial, Spice Route Co.</p>
+      </div>
+      <div class="testimonial-slide">
+        <p class="testimonial-quote">I've worked with photographers all over the world. Lumière stands apart — the lighting, the timing, the warmth. Absolutely world-class.</p>
+        <p class="testimonial-author">Ananya Krishnan</p>
+        <p class="testimonial-role">Editorial, Vogue India</p>
+      </div>
+      <div class="testimonial-dots" id="dots"></div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-info">
+      <p class="section-label reveal">Let's Connect</p>
+      <h2 class="section-title reveal reveal-delay-1">Book your <em>session</em></h2>
+      <p class="reveal reveal-delay-2">
+        Ready to create something beautiful together? Fill out the form or reach us directly. We respond within 24 hours.
+      </p>
+      <div class="contact-details reveal reveal-delay-3">
+        <div class="contact-detail">
+          <div class="contact-icon">📍</div>
+          <span>12, Anna Salai, Nungambakkam, Chennai — 600 006</span>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-icon">📞</div>
+          <span>+91 98400 12345</span>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-icon">✉</div>
+          <span>hello@lumiere.studio</span>
+        </div>
+        <div class="contact-detail">
+          <div class="contact-icon">⏰</div>
+          <span>Mon – Sat · 9 AM – 7 PM</span>
+        </div>
+      </div>
+    </div>
+    <form class="contact-form reveal reveal-delay-2" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" placeholder="Priya" required />
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" placeholder="Sharma" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" placeholder="you@example.com" required />
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" placeholder="+91 98400 00000" />
+      </div>
+      <div class="form-group">
+        <label>Service Required</label>
+        <select>
+          <option value="">Select a service…</option>
+          <option>Portrait Session</option>
+          <option>Wedding Coverage</option>
+          <option>Editorial & Fashion</option>
+          <option>Commercial Photography</option>
+          <option>Events & Celebrations</option>
+          <option>Fine Art Prints</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tell us about your project</label>
+        <textarea rows="4" placeholder="Date, location, any special requirements…"></textarea>
+      </div>
+      <button type="submit" class="form-submit" id="submitBtn">Send Enquiry →</button>
+    </form>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="#" class="logo">LUMI<span>È</span>RE</a>
+    <p>© 2025 Lumière Photography Studio. All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="#" title="Instagram">ig</a>
+      <a href="#" title="Facebook">fb</a>
+      <a href="#" title="Pinterest">pt</a>
+      <a href="#" title="LinkedIn">in</a>
+    </div>
+  </footer>
+
+  <script>
+    // ── Custom cursor ──
+    const cursor = document.getElementById('cursor');
+    const ring   = document.getElementById('cursorRing');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+      ring.style.left   = e.clientX + 'px';
+      ring.style.top    = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, button, input, select, textarea, .gallery-item, .dot').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); ring.classList.add('hover'); });
+      el.addEventListener('mouseleave', () => { cursor.classList.remove('hover'); ring.classList.remove('hover'); });
+    });
+
+    // ── Scroll reveal ──
+    const reveals = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    reveals.forEach(r => obs.observe(r));
+
+    // ── Portfolio filter ──
+    document.querySelectorAll('.filter-tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-tabs button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const f = btn.dataset.filter;
+        document.querySelectorAll('.gallery-item').forEach(item => {
+          item.style.display = (f === 'all' || item.dataset.cat === f) ? 'block' : 'none';
+        });
+      });
+    });
+
+    // ── Testimonials ──
+    const slides = document.querySelectorAll('.testimonial-slide');
+    const dotsContainer = document.getElementById('dots');
+    let current = 0;
+    slides.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.addEventListener('click', () => goTo(i));
+      dotsContainer.appendChild(d);
+    });
+    const dots = document.querySelectorAll('.dot');
+    function goTo(n) {
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      current = n;
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+    }
+    setInterval(() => goTo((current + 1) % slides.length), 5000);
+
+    // ── Contact form ──
+    function handleSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.textContent = 'Sending…';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = '✓ Message Sent!';
+        btn.style.background = '#4caf50';
+        setTimeout(() => {
+          btn.textContent = 'Send Enquiry →';
+          btn.style.background = '';
+          btn.disabled = false;
+          e.target.reset();
+        }, 3000);
+      }, 1200);
+    }
+
+    // ── Smooth scroll for nav links ──
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+  </script>
+</body>
+</html>
