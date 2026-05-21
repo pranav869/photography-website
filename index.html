@@ -76,6 +76,19 @@
       position: relative;
     }
     .logo span { color: var(--gold); }
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--cream);
+      font-size: 1.4rem;
+      line-height: 1;
+      letter-spacing: 0.1em;
+      padding: 6px;
+      position: relative;
+      z-index: 102;
+      cursor: none;
+    }
     .nav-links {
       display: flex; gap: 44px; list-style: none;
       position: relative;
@@ -595,6 +608,125 @@
       color: var(--text-muted);
     }
 
+    @media (max-width: 1024px) {
+      nav { padding: 24px 28px; }
+      section { padding: 96px 28px; }
+      #about, #contact { grid-template-columns: 1fr; gap: 48px; }
+      .about-img-wrap img { height: 440px; }
+      .about-stat-row { flex-wrap: wrap; gap: 26px; }
+      .portfolio-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 26px;
+      }
+      .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .gallery-item:nth-child(n) {
+        grid-column: auto;
+        grid-row: auto;
+        height: 300px;
+      }
+      .services-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 18px 20px; }
+      .logo { font-size: 1.2rem; letter-spacing: 0.18em; }
+      .nav-toggle { display: block; }
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: min(84vw, 360px);
+        height: 100vh;
+        background: rgba(10,10,10,0.98);
+        backdrop-filter: blur(4px);
+        padding: 94px 26px 32px;
+        flex-direction: column;
+        gap: 20px;
+        transition: right 0.35s ease;
+        border-left: 1px solid rgba(201,169,110,0.2);
+      }
+      .nav-links.open { right: 0; }
+      .nav-links a { font-size: 0.75rem; letter-spacing: 0.18em; }
+      .nav-cta {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 12px 16px;
+        text-align: center;
+      }
+      #hero {
+        min-height: 100svh;
+        height: auto;
+        padding: 120px 20px 96px;
+        align-items: flex-end;
+      }
+      .hero-content {
+        padding-left: 0;
+        max-width: 100%;
+      }
+      .hero-eyebrow { font-size: 0.58rem; margin-bottom: 14px; }
+      .hero-title {
+        font-size: clamp(2.2rem, 11vw, 3.6rem);
+        margin-bottom: 18px;
+      }
+      .hero-subtitle {
+        max-width: 100%;
+        font-size: 0.74rem;
+        line-height: 1.75;
+        margin-bottom: 28px;
+      }
+      .hero-btns {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .btn-primary, .btn-ghost {
+        justify-content: center;
+        text-align: center;
+      }
+      .hero-scroll { display: none; }
+      .marquee-inner span { margin: 0 22px; }
+      section { padding: 78px 20px; }
+      .section-title { font-size: clamp(2rem, 10vw, 2.8rem); }
+      .filter-tabs {
+        overflow-x: auto;
+        width: 100%;
+        padding-bottom: 8px;
+      }
+      .filter-tabs button { white-space: nowrap; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .gallery-item:nth-child(n) { height: 260px; }
+      .gallery-overlay { opacity: 1; }
+      .services-grid { grid-template-columns: 1fr; margin-top: 38px; }
+      .service-card { padding: 38px 26px; }
+      .testimonials-wrapper { margin-top: 52px; }
+      .contact-info p { max-width: 100%; }
+      .form-submit { width: 100%; }
+      footer {
+        padding: 38px 20px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      footer p { line-height: 1.8; }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      body { cursor: auto; }
+      .cursor,
+      .cursor-ring { display: none; }
+      .filter-tabs button,
+      .gallery-item,
+      .dot,
+      .form-group input,
+      .form-group select,
+      .form-group textarea,
+      .form-submit,
+      .nav-toggle { cursor: pointer; }
+      .gallery-overlay { opacity: 1; }
+    }
+
     /* ── REVEAL ANIMATION ── */
     .reveal {
       opacity: 0;
@@ -619,6 +751,7 @@
   <!-- NAV -->
   <nav>
     <a href="#" class="logo">LUMI<span>È</span>RE</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
       <li><a href="#portfolio">Portfolio</a></li>
@@ -890,15 +1023,26 @@
     // ── Custom cursor ──
     const cursor = document.getElementById('cursor');
     const ring   = document.getElementById('cursorRing');
-    document.addEventListener('mousemove', e => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top  = e.clientY + 'px';
-      ring.style.left   = e.clientX + 'px';
-      ring.style.top    = e.clientY + 'px';
-    });
+    const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+    if (!isTouchDevice) {
+      document.addEventListener('mousemove', e => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top  = e.clientY + 'px';
+        ring.style.left   = e.clientX + 'px';
+        ring.style.top    = e.clientY + 'px';
+      });
+    }
     document.querySelectorAll('a, button, input, select, textarea, .gallery-item, .dot').forEach(el => {
       el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); ring.classList.add('hover'); });
       el.addEventListener('mouseleave', () => { cursor.classList.remove('hover'); ring.classList.remove('hover'); });
+    });
+
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.querySelector('.nav-links');
+    navToggle.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', String(isOpen));
+      navToggle.textContent = isOpen ? '✕' : '☰';
     });
 
     // ── Scroll reveal ──
@@ -962,7 +1106,13 @@
     document.querySelectorAll('a[href^="#"]').forEach(a => {
       a.addEventListener('click', e => {
         const target = document.querySelector(a.getAttribute('href'));
-        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+          navLinks.classList.remove('open');
+          navToggle.setAttribute('aria-expanded', 'false');
+          navToggle.textContent = '☰';
+        }
       });
     });
   </script>
